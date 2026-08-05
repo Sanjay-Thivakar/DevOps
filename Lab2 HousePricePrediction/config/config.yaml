@@ -1,0 +1,14 @@
+artifacts_root: artifacts
+
+data_ingestion:
+  train_path: artifacts/train.csv
+  test_path: artifacts/test.csv
+
+data_transformation:
+  preprocessor_path: artifacts/preprocessor.pkl
+
+model_trainer:
+  model_path: artifacts/model.pkl
+
+evaluation:
+  metrics_path: artifacts/metrics.json
