@@ -1,0 +1,10 @@
+# Generated pipeline outputs
+data/train.csv
+data/test.csv
+data/scaler.joblib
+model/
+metrics.json
+
+# Python tooling
+__pycache__/
+.pytest_cache/

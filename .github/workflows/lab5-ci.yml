@@ -1,0 +1,102 @@
+name: Lab-Ex-5 Boston Housing MLOps CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r Lab-Ex-5/requirements.txt
+
+      - name: Create Path Links for Root Execution
+        run: |
+          ln -s Lab-Ex-5/data data
+          ln -s Lab-Ex-5/model model
+          ln -s Lab-Ex-5/params.yaml params.yaml
+          touch Lab-Ex-5/metrics.json
+          ln -s Lab-Ex-5/metrics.json metrics.json
+
+      - name: Run Test Suite
+        run: python -m pytest Lab-Ex-5/tests/ -v
+
+      - name: Run Pipeline Sequentially
+        run: |
+          python Lab-Ex-5/src/prepare.py
+          python Lab-Ex-5/src/train.py
+          python Lab-Ex-5/src/evaluate.py
+
+      - name: Verify Pipeline Artifacts Exist
+        run: |
+          python -c "
+          import os, sys
+          files = [
+              'Lab-Ex-5/data/train.csv',
+              'Lab-Ex-5/data/test.csv',
+              'Lab-Ex-5/data/scaler.joblib',
+              'Lab-Ex-5/model/model.joblib',
+              'Lab-Ex-5/model/linear_regression.joblib',
+              'Lab-Ex-5/model/decision_tree.joblib',
+              'Lab-Ex-5/model/random_forest.joblib',
+              'Lab-Ex-5/model/features.json',
+              'Lab-Ex-5/metrics.json'
+          ]
+          missing = [f for f in files if not os.path.exists(f)]
+          if missing:
+              print('Missing expected artifacts:', missing)
+              sys.exit(1)
+          else:
+              print('All expected artifacts verified.')
+          "
+
+      - name: Print CI Summary Log
+        run: |
+          python -c "
+          import json, yaml, sys
+          metrics = json.load(open('Lab-Ex-5/metrics.json'))
+          params = yaml.safe_load(open('Lab-Ex-5/params.yaml'))
+          rf_r2 = metrics['random_forest']['r2']
+          min_r2 = params['evaluate']['min_r2']
+          print('=== CI Summary Log ===')
+          print('Pytest Status: PASSED')
+          print('Model Training: COMPLETED')
+          print('Evaluation Metrics:')
+          print(json.dumps(metrics, indent=2))
+          print(f'Random Forest R²: {rf_r2:.4f}')
+          print(f'Configured Minimum R²: {min_r2:.4f}')
+          if rf_r2 >= min_r2:
+              print('Quality Gate: PASSED')
+          else:
+              print('Quality Gate: FAILED')
+              sys.exit(1)
+          "
+
+      - name: Upload Model and Metrics Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-and-metrics
+          path: |
+            Lab-Ex-5/model/
+            Lab-Ex-5/metrics.json
+
+      - name: Push Model to Hugging Face Hub
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_REPO_ID: ${{ secrets.HF_REPO_ID }}
+        run: python Lab-Ex-5/src/register.py
