@@ -1,0 +1,56 @@
+name: Breast Cancer Classification MLOps CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  ci-pipeline:
+    name: Continuous Integration Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Download raw dataset
+        run: |
+          python -c "
+          import os
+          import pandas as pd
+          from sklearn.datasets import load_breast_cancer
+          os.makedirs('data/raw', exist_ok=True)
+          data = load_breast_cancer(as_frame=True)
+          df = data.frame
+          df.to_csv('data/raw/breast_cancer.csv', index=False)
+          print('Raw dataset loaded and saved successfully.')
+          "
+
+      - name: Run preprocessing stage
+        run: |
+          python src/data_preprocessing.py
+
+      - name: Run model training and MLflow registration
+        run: |
+          python src/train.py
+
+      - name: Run test suite
+        run: |
+          pytest
+
+      - name: Build Docker image
+        run: |
+          docker build -t breast-cancer-mlops:ci .

@@ -1,0 +1,38 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python src/data_preprocessing.py
+    deps:
+    - path: data/raw/breast_cancer.csv
+      hash: md5
+      md5: 24d9881fad8cfb3d94f5276d372e422b
+      size: 121955
+    - path: src/data_preprocessing.py
+      hash: md5
+      md5: ac9b6877475c884783d5d4cf08346928
+      size: 2779
+    - path: src/utils.py
+      hash: md5
+      md5: e8440f154149af660f1385d75be93502
+      size: 1868
+    params:
+      params.yaml:
+        preprocessing.random_state: 42
+        preprocessing.test_size: 0.2
+    outs:
+    - path: data/processed/X_test.csv
+      hash: md5
+      md5: e6871f3aa13eda1a21c7bdbaf06064d4
+      size: 68199
+    - path: data/processed/X_train.csv
+      hash: md5
+      md5: fb98e56e38048496dab6f48debabbfb1
+      size: 270542
+    - path: data/processed/y_test.csv
+      hash: md5
+      md5: a08a5bd886fabc8c716e4093f019149f
+      size: 350
+    - path: data/processed/y_train.csv
+      hash: md5
+      md5: f68fe39a4d01775cf590b209bdc65926
+      size: 1373

@@ -1,0 +1,15 @@
+stages:
+  preprocess:
+    cmd: python src/data_preprocessing.py
+    deps:
+      - data/raw/breast_cancer.csv
+      - src/data_preprocessing.py
+      - src/utils.py
+    params:
+      - preprocessing.test_size
+      - preprocessing.random_state
+    outs:
+      - data/processed/X_train.csv
+      - data/processed/X_test.csv
+      - data/processed/y_train.csv
+      - data/processed/y_test.csv

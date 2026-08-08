@@ -1,0 +1,11 @@
+preprocessing:
+  test_size: 0.2
+  random_state: 42
+training:
+  random_state: 42
+mlflow:
+  experiment_name: Breast Cancer Classification
+  registered_model_name: BreastCancerClassifier
+  tracking_uri: sqlite:///mlflow.db
+
+

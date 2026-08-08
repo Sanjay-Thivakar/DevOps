@@ -1,0 +1,32 @@
+# Python caching
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Model artifacts (ignore everything in models/ except .gitkeep)
+models/*
+!models/.gitkeep
+
+# DVC local configs
+.dvc/config.local
+
+# MLflow tracking data (logs, database, local runs)
+mlruns/
+mlflow.db
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+.ipynb_checkpoints/

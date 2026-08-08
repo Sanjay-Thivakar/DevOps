@@ -1,0 +1,33 @@
+# Git and CI/CD
+.git/
+.github/
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Python Cache
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Tests and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Raw and processed datasets (not needed for API prediction)
+data/raw/
+data/processed/
+.dvc/
+.dvcignore
+dvc.yaml
+dvc.lock
+*dvc
+
+# Local files
+.ipynb_checkpoints/
+*.log
+scratch/
